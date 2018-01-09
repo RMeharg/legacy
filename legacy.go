@@ -28,6 +28,7 @@ type LegacyArguments struct {
 	AwsSecret        string
 	AwsAccessKey     string
 	AwsRegion        string
+	S3Endpoint       string
 	S3Bucket         string
 	S3BasePath       string
 	NewSnapshot      bool
@@ -260,8 +261,16 @@ func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 		"",
 		time.Now().AddDate(0, 0, 1))
 
+	// Set custom S3 endpoint
+	region := GetAwsRegion(la.AwsRegion)
+	if(la.S3Endpoint != "") {
+		region = aws.Region{}
+		region.Name = "non-aws"
+		region.S3Endpoint = la.S3Endpoint
+	}
+
 	// Check the bucket exists.
-	bucket := s3.New(auth, GetAwsRegion(la.AwsRegion)).Bucket(la.S3Bucket)
+	bucket := s3.New(auth, region).Bucket(la.S3Bucket)
 	_, err := bucket.List("/", "/", "", 1)
 	if err != nil {
 		return nil, err
@@ -373,6 +382,7 @@ func GetLegacyArguments() (*LegacyArguments, error) {
 	flag.StringVar(&args.AwsSecret, "aws-secret", os.Getenv("AWS_SECRET_ACCESS_KEY"), "AWS Secret - Default: AWS_SECRET_ACCESS_KEY environment variable")
 	flag.StringVar(&args.AwsAccessKey, "aws-access-key", os.Getenv("AWS_ACCESS_KEY_ID"), "AWS Secret Key - Default: AWS_ACCESS_KEY_ID environment variable")
 	flag.StringVar(&args.AwsRegion, "aws-region", "eu-west-1", "AWS Region - Default: eu-west-1. See: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region")
+	flag.StringVar(&args.S3Endpoint, "s3-endpoint", "", "S3 Endpoint - For custom S3 services hosted outside of AWS such as Minio or Ceph")
 	flag.StringVar(&args.S3Bucket, "s3-bucket", "", "The name of the bucket for the backup destination.")
 	flag.StringVar(&args.S3BasePath, "s3-base-path", "", "The path inside the bucket where the backups will be placed.")
 	flag.StringVar(&args.DataDirectories, "directories", "/var/lib/cassandra/data", "A set of data directories that contain the keyspace / tables. For multiple, comma separate: /data1,/data2")
