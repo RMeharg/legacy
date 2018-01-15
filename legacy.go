@@ -144,7 +144,7 @@ func (l *Legacy) SetupLogging() {
 		return
 	}
 
-	filename := "legacy-" + time.Now().Format("20060201") + ".log"
+	filename := "legacy-" + time.Now().Format("2006-01-02") + ".log"
 	logPath := path.Join(l.LogDirectory, filename)
 	fh, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err == nil {
