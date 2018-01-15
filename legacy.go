@@ -290,6 +290,7 @@ func (la *LegacyArguments) GetLegacy() (*Legacy, error) {
 		S3StreamBucket:  streamBucket,
 		LogDirectory:    la.LogDirectory,
 		NewSnapshot:     la.NewSnapshot,
+                S3BasePath:      la.S3BasePath,
 	}
 
 	legacy.MachineName, _ = os.Hostname()
